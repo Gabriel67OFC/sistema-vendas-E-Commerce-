@@ -1,0 +1,126 @@
+carrinho = []
+
+estoque = {
+    1: {"nome": "Ferrari 488", "preco": 2500000.00, "quantidade": 4},
+    2: {"nome": "Lamborghini Huracán", "preco": 300000000.00, "quantidade": 3},
+    3: {"nome": "Koenigsegg Jesko Absolut", "preco": 1700000000.00, "quantidade": 1}
+}
+
+
+def exibir_estoque():
+    print("\n--- ESTOQUE ATUAL ---")
+    print(f"{'ID':<5} {'Nome':<30} {'Preço (R$)':>20} {'Qtd':>5}")
+    print("-" * 65)
+    for k, v in estoque.items():
+        print(f"{k:<5} {v['nome']:<30} {v['preco']:>20,.2f} {v['quantidade']:>5}")
+
+
+def adicionar_carrinho():
+    exibir_estoque()
+    id_produto = int(input("Digite o ID do carro: "))
+    if id_produto in estoque:
+        quantidade = int(input("Digite a quantidade desejada: "))
+        if quantidade > 0:
+            if quantidade <= estoque[id_produto]["quantidade"]:
+                carrinho.append({
+                    "nome": estoque[id_produto]["nome"],
+                    "quantidade": quantidade,
+                    "preco": estoque[id_produto]["preco"]
+                })
+                estoque[id_produto]["quantidade"] -= quantidade
+                print("Carro adicionado ao carrinho!")
+            else:
+                print("Estoque insuficiente!")
+        else:
+            print("Quantidade inválida!")
+    else:
+        print("Produto inexistente!")
+
+
+def exibir_carrinho():
+    if len(carrinho) == 0:
+        print("\nCarrinho vazio.")
+        return
+
+    print("\n--- CARRINHO ---")
+    total = 0
+    for item in carrinho:
+        subtotal = item["preco"] * item["quantidade"]
+        total += subtotal
+        print(f"{item['nome']} | {item['quantidade']}x R$ {item['preco']:,.2f} = R$ {subtotal:,.2f}")
+
+    print(f"\nSubtotal: R$ {total:,.2f}")
+
+
+def finalizar_compra():
+    if len(carrinho) == 0:
+        print("\nCarrinho vazio. Adicione itens antes de finalizar.")
+        return
+
+    subtotal = sum(item["preco"] * item["quantidade"] for item in carrinho)
+
+    print(f"\nSubtotal: R$ {subtotal:,.2f}")
+    cupom = input("Digite um cupom de desconto (ou ENTER para pular): ").strip().upper()
+
+    desconto = 0
+    if cupom == "DEV10":
+        desconto = subtotal * 0.10
+        print("Cupom DEV10 aplicado! 10% de desconto.")
+    elif cupom == "DEV20":
+        if subtotal > 500:
+            desconto = subtotal * 0.20
+            print("Cupom DEV20 aplicado! 20% de desconto.")
+        else:
+            print("Cupom DEV20 exige subtotal acima de R$ 500,00. Sem desconto.")
+    elif cupom != "":
+        print("Cupom inválido. Sem desconto.")
+
+    total = subtotal - desconto
+
+    print("\n--- RESUMO DO PEDIDO ---")
+    print(f"Subtotal:  R$ {subtotal:>15,.2f}")
+    print(f"Desconto:  R$ {desconto:>15,.2f}")
+    print(f"Total:     R$ {total:>15,.2f}")
+
+    confirmacao = input("\nConfirmar pagamento? (S/N): ").strip().upper()
+
+    if confirmacao == "S":
+        print("\nPagamento confirmado! Obrigado pela compra!")
+        carrinho.clear()
+    elif confirmacao == "N":
+        print("\nCompra cancelada. Devolvendo itens ao estoque...")
+        for item in carrinho:
+            for k, v in estoque.items():
+                if v["nome"] == item["nome"]:
+                    estoque[k]["quantidade"] += item["quantidade"]
+        carrinho.clear()
+        print("Itens devolvidos ao estoque.")
+    else:
+        print("Resposta inválida. Voltando ao menu.")
+
+
+while True:
+    print()
+    print("--Racing Bulls--")
+    print()
+    print("[1] Visualizar Estoque")
+    print("[2] Adicionar Carro ao Carrinho")
+    print("[3] Visualizar Carrinho")
+    print("[4] Finalizar Compra")
+    print("[0] Sair do Sistema")
+
+    opcao = int(input("Digite a sua opção: "))
+
+    if opcao not in {1, 2, 3, 4, 0}:
+        print("Opção inválida!")
+    elif opcao == 1:
+        exibir_estoque()
+    elif opcao == 2:
+        adicionar_carrinho()
+    elif opcao == 3:
+        exibir_carrinho()
+    elif opcao == 4:
+        finalizar_compra()
+    elif opcao == 0:
+        print("Saindo... Obrigado!")
+        break
